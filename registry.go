@@ -1,6 +1,7 @@
 package promgo
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -8,6 +9,13 @@ const (
 	// WorkerCount 执行协程数量
 	WorkerCount = 5
 )
+
+// CollectorRegister ...
+type CollectorRegister interface {
+	MustRegister(Collector)
+	Register(Collector) error
+	Unregister(Collector)
+}
 
 // Registry ...
 type Registry struct {
@@ -34,17 +42,25 @@ func NewRegistry() *Registry {
 	}
 }
 
+// MustRegister 注册
+func (r Registry) MustRegister(c Collector) {
+	if err := r.Register(c); err != nil {
+		panic(err)
+	}
+}
+
 // Register 注册
-func (r Registry) Register(c Collector) {
+func (r Registry) Register(c Collector) error {
 	id := c.Describe().ID()
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	if _, ok := r.collectors[id]; ok {
-		return
+		return fmt.Errorf(` name: [%s], collector has been registered`, id)
 	}
 
 	r.collectors[id] = c
+	return nil
 }
 
 // Unregister 取消注册

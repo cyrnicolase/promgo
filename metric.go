@@ -47,7 +47,7 @@ func (m Metric) String() string {
 		kk = append(kk, k)
 	}
 
-	return fmt.Sprintf(`%s_%s_%s`, m.ID(), m.Desc.Type, strings.Join(kk, `_`))
+	return strings.Trim(fmt.Sprintf(`%s_%s_%s`, m.ID(), m.Desc.Type, strings.Join(kk, `_`)), `_`)
 }
 
 // GetName 获取指标名

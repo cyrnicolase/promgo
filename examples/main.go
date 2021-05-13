@@ -26,25 +26,33 @@ func init() {
 		Labels: []string{`method`, `endpoint`},
 	})
 	AllRequest = promgo.NewCounter(rdb, promgo.CounterOptions{
-		Name: `request_total`,
+		Name: `all_request`,
 		Help: `接口请求总数`,
 	})
 
-	promgo.GetDefaultRegistry().Register(RequestTotal)
-	promgo.GetDefaultRegistry().Register(AllRequest)
+	promgo.GetDefaultRegistry().MustRegister(RequestTotal)
+	promgo.GetDefaultRegistry().MustRegister(AllRequest)
 }
 
 func main() {
 	http.HandleFunc(`/hello`, func(rw http.ResponseWriter, r *http.Request) {
-		AllRequest.Incr(r.Context(), nil)
-		RequestTotal.Incr(r.Context(), promgo.ConstLabels{
+		AllRequest.Inc(r.Context(), nil)
+		RequestTotal.Inc(r.Context(), promgo.ConstLabels{
 			`method`:   r.Method,
 			`endpoint`: r.URL.Path,
 		})
 
 		fmt.Fprintf(rw, `hello`)
 	})
-	http.HandleFunc(`/metrics`, promgo.Render())
+	http.HandleFunc(`/index`, func(rw http.ResponseWriter, r *http.Request) {
+		AllRequest.Inc(r.Context(), nil)
+		RequestTotal.Inc(r.Context(), promgo.ConstLabels{
+			`method`:   r.Method,
+			`endpoint`: r.URL.Path,
+		})
 
+		fmt.Fprint(rw, `index`)
+	})
+	http.HandleFunc(`/metrics`, promgo.Render())
 	http.ListenAndServe(`:1111`, nil)
 }

@@ -36,7 +36,11 @@ func (d Desc) GetType() string {
 
 // ID 唯一标志
 func (d Desc) ID() string {
-	id := fmt.Sprintf(`%s__%s`, d.Namespace, d.Name)
+	id := fmt.Sprintf(`%s%s%s`,
+		d.Namespace,
+		FieldSeperator,
+		d.Name,
+	)
 
-	return strings.Trim(id, `__`)
+	return strings.Trim(id, FieldSeperator)
 }

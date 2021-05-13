@@ -28,7 +28,7 @@ func Render() http.HandlerFunc {
 
 			for _, m := range group {
 				vv := make([]string, 0, len(m.ConstLabels))
-				if m.ConstLabels == nil {
+				if len(m.ConstLabels) == 0 {
 					lines = append(lines, fmt.Sprintf(`%s %.2f`, m.GetName(), m.GetValue()))
 					continue
 				}

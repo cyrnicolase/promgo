@@ -2,9 +2,7 @@ package promgo
 
 import (
 	"context"
-	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -13,8 +11,8 @@ import (
 type Counter interface {
 	Collector
 
-	Incr(context.Context, ConstLabels)
-	IncrBy(context.Context, float64, ConstLabels)
+	Inc(context.Context, ConstLabels)
+	IncBy(context.Context, float64, ConstLabels)
 }
 
 // CounterOptions ...
@@ -27,17 +25,16 @@ type CounterOptions struct {
 
 // redisCounter ...
 type redisCounter struct {
-	Rdb  redis.Cmdable
-	Desc *Desc
+	redisCollector
 }
 
 // Incr 自增量，步长为1
-func (rc redisCounter) Incr(ctx context.Context, constLables ConstLabels) {
-	rc.IncrBy(ctx, 1, constLables)
+func (rc redisCounter) Inc(ctx context.Context, constLables ConstLabels) {
+	rc.IncBy(ctx, 1, constLables)
 }
 
 // IncrBy 指定增量的增长; 增量 v 必须是一个非负数; 这里没有做校验。。。
-func (rc redisCounter) IncrBy(ctx context.Context, v float64, constLabels ConstLabels) {
+func (rc redisCounter) IncBy(ctx context.Context, v float64, constLabels ConstLabels) {
 	rc.Rdb.HIncrByFloat(ctx, rc.key(), rc.field(constLabels), v)
 }
 
@@ -51,15 +48,7 @@ func (rc redisCounter) Collect(ch chan<- *MetricErr) {
 
 	for field, value := range values {
 		v, _ := strconv.ParseFloat(value, 64)
-		var constlabels map[string]string
-		if field != "" {
-			vv := strings.Split(field, `__`)
-			constlabels = make(map[string]string)
-			for i, l := range rc.Desc.Labels {
-				constlabels[l] = vv[i]
-			}
-		}
-
+		constlabels := rc.constLabels(field)
 		metric := NewMetric(rc.Desc, v, constlabels)
 		ch <- NewMetricErr(metric, nil)
 	}
@@ -68,21 +57,6 @@ func (rc redisCounter) Collect(ch chan<- *MetricErr) {
 // Metric
 func (rc redisCounter) Describe() *Desc {
 	return rc.Desc
-}
-
-func (rc redisCounter) key() string {
-	return fmt.Sprintf(`prometheus:counter:%s`, rc.Desc.ID())
-}
-
-func (rc redisCounter) field(constLables ConstLabels) string {
-	vv := make([]string, 0, len(rc.Desc.Labels))
-	for _, l := range rc.Desc.Labels {
-		if v, ok := constLables[l]; ok {
-			vv = append(vv, v)
-		}
-	}
-
-	return strings.Join(vv, `__`) // 使用双下划线连接标签值
 }
 
 // NewCounter ...
@@ -95,8 +69,10 @@ func NewCounter(rdb redis.Cmdable, opts CounterOptions) Counter {
 		Labels:    opts.Labels,
 	}
 
-	return &redisCounter{
+	rc := redisCollector{
 		Rdb:  rdb,
 		Desc: desc,
 	}
+
+	return &redisCounter{redisCollector: rc}
 }
