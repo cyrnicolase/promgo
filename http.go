@@ -13,7 +13,7 @@ func Render() http.HandlerFunc {
 		m := defaultRegistry.Collect()
 		metrics := Metrics(m)
 		sort.Sort(metrics)
-		metricGroup := make(map[*Desc][]Metric)
+		metricGroup := make(map[*Desc]Metrics)
 		for _, metric := range metrics {
 			if _, ok := metricGroup[metric.Desc]; !ok {
 				metricGroup[metric.Desc] = make([]Metric, 0)
@@ -21,11 +21,19 @@ func Render() http.HandlerFunc {
 			metricGroup[metric.Desc] = append(metricGroup[metric.Desc], metric)
 		}
 
+		descs := make(Descs, 0, len(metricGroup))
+		for desc := range metricGroup {
+			descs = append(descs, desc)
+		}
+		sort.Sort(descs)
+
 		lines := []string{}
-		for desc, group := range metricGroup {
+		for _, desc := range descs {
 			lines = append(lines, fmt.Sprintf(`# HELP %s %s`, desc.GetName(), desc.GetHelp()))
 			lines = append(lines, fmt.Sprintf(`# TYPE %s %s`, desc.GetName(), desc.GetType()))
 
+			group := metricGroup[desc]
+			sort.Sort(group)
 			for _, m := range group {
 				vv := make([]string, 0, len(m.ConstLabels))
 				if len(m.ConstLabels) == 0 {
@@ -33,8 +41,8 @@ func Render() http.HandlerFunc {
 					continue
 				}
 
-				for k, v := range m.ConstLabels {
-					vv = append(vv, fmt.Sprintf(`%s=%s`, k, v))
+				for _, l := range m.Desc.Labels {
+					vv = append(vv, fmt.Sprintf(`%s="%s"`, l, m.ConstLabels[l]))
 				}
 				lines = append(lines, fmt.Sprintf(`%s{%s} %.2f`, m.GetName(), strings.Join(vv, `,`), m.GetValue()))
 			}

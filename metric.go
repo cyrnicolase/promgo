@@ -43,8 +43,9 @@ func (m Metric) ID() string {
 // String ...
 func (m Metric) String() string {
 	kk := make([]string, 0, len(m.ConstLabels))
-	for k := range m.ConstLabels {
-		kk = append(kk, k)
+	for _, l := range m.Desc.Labels {
+		v := m.ConstLabels[l]
+		kk = append(kk, fmt.Sprintf(`%s_%s`, l, v))
 	}
 
 	return strings.Trim(fmt.Sprintf(`%s_%s_%s`, m.ID(), m.Desc.Type, strings.Join(kk, `_`)), `_`)

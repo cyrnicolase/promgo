@@ -44,3 +44,24 @@ func (d Desc) ID() string {
 
 	return strings.Trim(id, FieldSeperator)
 }
+
+// Descs ...
+type Descs []*Desc
+
+// Less 对比
+func (d Descs) Less(i, j int) bool {
+	if strings.Compare(d[i].ID(), d[j].ID()) == 1 {
+		return false
+	}
+	return true
+}
+
+// Swap 交换
+func (d Descs) Swap(i, j int) {
+	d[i], d[j] = d[j], d[i]
+}
+
+// Len 长度
+func (d Descs) Len() int {
+	return len(d)
+}
