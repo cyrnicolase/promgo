@@ -37,14 +37,14 @@ func Render() http.HandlerFunc {
 			for _, m := range group {
 				vv := make([]string, 0, len(m.ConstLabels))
 				if len(m.ConstLabels) == 0 {
-					lines = append(lines, fmt.Sprintf(`%s %.2f`, m.GetName(), m.GetValue()))
+					lines = append(lines, fmt.Sprintf(`%s %.2f`, m.GetFQName(), m.GetValue()))
 					continue
 				}
 
 				for _, l := range m.Desc.Labels {
 					vv = append(vv, fmt.Sprintf(`%s="%s"`, l, m.ConstLabels[l]))
 				}
-				lines = append(lines, fmt.Sprintf(`%s{%s} %.2f`, m.GetName(), strings.Join(vv, `,`), m.GetValue()))
+				lines = append(lines, fmt.Sprintf(`%s{%s} %.2f`, m.GetFQName(), strings.Join(vv, `,`), m.GetValue()))
 			}
 		}
 		lines = append(lines, "\n")

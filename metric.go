@@ -51,9 +51,9 @@ func (m Metric) String() string {
 	return strings.Trim(fmt.Sprintf(`%s_%s_%s`, m.ID(), m.Desc.Type, strings.Join(kk, `_`)), `_`)
 }
 
-// GetName 获取指标名
-func (m Metric) GetName() string {
-	return m.Desc.Name
+// GetFQName 获取指标名
+func (m Metric) GetFQName() string {
+	return m.Desc.ID()
 }
 
 // GetHelp 返回指标解释信息
