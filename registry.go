@@ -19,7 +19,7 @@ type CollectorRegister interface {
 
 // Registry ...
 type Registry struct {
-	mu         *sync.RWMutex // 读多，写少
+	mu         *sync.RWMutex
 	collectors map[string]Collector
 }
 
@@ -56,7 +56,7 @@ func (r Registry) Register(c Collector) error {
 	defer r.mu.Unlock()
 
 	if _, ok := r.collectors[id]; ok {
-		return fmt.Errorf(` name: [%s], collector has been registered`, id)
+		return fmt.Errorf(`name: [%s], collector has been registered`, id)
 	}
 
 	r.collectors[id] = c

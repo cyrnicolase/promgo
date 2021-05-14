@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	// LE 小于等于
-	LE = `le`
+	// 小于等于
+	leLabel = `le`
 )
 
 var (
@@ -91,7 +91,7 @@ func NewHistogram(rdb redis.Cmdable, opts HistogramOptions, buckets []float64) H
 		Name:      opts.Name,
 		Help:      opts.Help,
 		Type:      HistogramValue,
-		Labels:    []string{`le`},
+		Labels:    []string{leLabel},
 	}
 
 	rc := redisCollector{
