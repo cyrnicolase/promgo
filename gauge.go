@@ -18,12 +18,7 @@ type Gauge interface {
 }
 
 // GaugeOptions ...
-type GaugeOptions struct {
-	Namespace string
-	Name      string
-	Help      string
-	Labels    []string
-}
+type GaugeOptions CollectorOptions
 
 // redisGauge ...
 type redisGauge struct {

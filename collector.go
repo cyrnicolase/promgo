@@ -18,6 +18,14 @@ type Collector interface {
 	Describe() *Desc
 }
 
+// CollectorOptions 参数管理
+type CollectorOptions struct {
+	Namespace string
+	Name      string
+	Help      string
+	Labels    []string
+}
+
 const (
 	// CollectorPrefix ...
 	CollectorPrefix = `prometheus`

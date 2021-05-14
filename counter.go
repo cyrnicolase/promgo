@@ -16,12 +16,7 @@ type Counter interface {
 }
 
 // CounterOptions ...
-type CounterOptions struct {
-	Namespace string
-	Name      string
-	Help      string
-	Labels    []string
-}
+type CounterOptions CollectorOptions
 
 // redisCounter ...
 type redisCounter struct {

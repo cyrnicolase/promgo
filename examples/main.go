@@ -17,7 +17,8 @@ var (
 	// AllRequest ...
 	AllRequest promgo.Counter
 
-	cpuDegree promgo.Gauge
+	cpuDegree       promgo.Gauge
+	requestDuration promgo.Histogram
 )
 
 func init() {
@@ -39,10 +40,16 @@ func init() {
 		Name: `cpu_gauge`,
 		Help: `cpu 压力`,
 	})
+	requestDuration = promgo.NewHistogram(rdb, promgo.HistogramOptions{
+		Name: `request_xx_duration`,
+		Help: `接口请求时长`,
+	}, nil)
+	requestDuration.Linear(10, 10, 10)
 
 	promgo.GetDefaultRegistry().MustRegister(RequestTotal)
 	promgo.GetDefaultRegistry().MustRegister(AllRequest)
 	promgo.GetDefaultRegistry().MustRegister(cpuDegree)
+	promgo.GetDefaultRegistry().MustRegister(requestDuration)
 
 }
 
@@ -52,6 +59,13 @@ func main() {
 			time.Sleep(time.Second)
 			v := rand.Float64()
 			cpuDegree.Set(context.Background(), v, nil)
+		}
+	}()
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			v := 100 * rand.Float64()
+			requestDuration.Observe(context.Background(), v)
 		}
 	}()
 	http.HandleFunc(`/hello`, func(rw http.ResponseWriter, r *http.Request) {
