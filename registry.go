@@ -10,6 +10,10 @@ const (
 	WorkerCount = 5
 )
 
+var (
+	defaultRegistry *Registry
+)
+
 // CollectorRegister ...
 type CollectorRegister interface {
 	MustRegister(Collector)
@@ -17,16 +21,14 @@ type CollectorRegister interface {
 	Unregister(Collector)
 }
 
+func init() {
+	defaultRegistry = NewRegistry()
+}
+
 // Registry ...
 type Registry struct {
 	mu         *sync.RWMutex
 	collectors map[string]Collector
-}
-
-var defaultRegistry *Registry
-
-func init() {
-	defaultRegistry = NewRegistry()
 }
 
 // GetDefaultRegistry ...

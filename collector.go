@@ -11,10 +11,10 @@ import (
 
 // Collector ...
 type Collector interface {
-	// Collect 收集器
+	// Collect 收集指标值
 	Collect(ch chan<- *MetricErr)
 
-	// Describe 指标
+	// Describe 指标描述
 	Describe() *Desc
 }
 
@@ -59,10 +59,12 @@ func (rc redisCollector) Collect(ch chan<- *MetricErr) {
 	}
 }
 
+// 在缓存中存储的key值
 func (rc redisCollector) key() string {
 	return fmt.Sprintf(`%s:%s:%s`, CollectorPrefix, rc.Desc.GetType(), rc.Desc.ID())
 }
 
+// Hash类型中的field值
 func (rc redisCollector) field(constLables ConstLabels) string {
 	vv := make([]string, 0, len(rc.Desc.Labels))
 	for _, l := range rc.Desc.Labels {
@@ -74,9 +76,10 @@ func (rc redisCollector) field(constLables ConstLabels) string {
 	return strings.Join(vv, FieldSeperator)
 }
 
-func (rc redisCollector) constLabels(field string) map[string]string {
+// 解析Hash类型中的field值，并与指标label进行映射
+func (rc redisCollector) constLabels(field string) ConstLabels {
 	vv := strings.Split(field, FieldSeperator)
-	cl := make(map[string]string)
+	cl := make(ConstLabels)
 	for i, l := range rc.Desc.Labels {
 		cl[l] = vv[i]
 	}
