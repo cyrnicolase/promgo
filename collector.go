@@ -65,10 +65,10 @@ func (rc redisCollector) key() string {
 }
 
 // Hash类型中的field值
-func (rc redisCollector) field(constLables ConstLabels) string {
+func (rc redisCollector) field(constLabels ConstLabels) string {
 	vv := make([]string, 0, len(rc.Desc.Labels))
 	for _, l := range rc.Desc.Labels {
-		if v, ok := constLables[l]; ok {
+		if v, ok := constLabels[l]; ok {
 			vv = append(vv, v)
 		}
 	}

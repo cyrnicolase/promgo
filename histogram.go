@@ -85,12 +85,13 @@ func (rh redisHistogram) findBucket(v float64) int {
 
 // NewHistogram ...
 func NewHistogram(rdb redis.Cmdable, opts HistogramOptions, buckets []float64) Histogram {
+	opts.Labels = append(opts.Labels, leLabel)
 	desc := &Desc{
 		Namespace: opts.Namespace,
 		Name:      opts.Name,
 		Help:      opts.Help,
 		Type:      HistogramValue,
-		Labels:    []string{leLabel},
+		Labels:    opts.Labels,
 	}
 
 	rc := redisCollector{
