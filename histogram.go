@@ -22,7 +22,7 @@ var (
 type Histogram interface {
 	Collector
 
-	Observe(context.Context, float64)
+	Observe(context.Context, float64, ConstLabels)
 	Linear(start, width float64, count int) []float64
 	Exponential(start, factor float64, count int) []float64
 }
@@ -37,9 +37,8 @@ type redisHistogram struct {
 }
 
 // Observe 观察者
-func (rh redisHistogram) Observe(ctx context.Context, v float64) {
+func (rh redisHistogram) Observe(ctx context.Context, v float64, constLables ConstLabels) {
 	bucket := rh.findBucket(v)
-	constLables := make(ConstLabels)
 	constLables[`le`] = strconv.FormatFloat(rh.Buckets[bucket], 'f', -1, 64)
 
 	rh.Rdb.HIncrByFloat(ctx, rh.key(), rh.field(constLables), 1)

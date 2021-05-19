@@ -65,7 +65,7 @@ func main() {
 		for {
 			time.Sleep(time.Second)
 			v := 100 * rand.Float64()
-			requestDuration.Observe(context.Background(), v)
+			requestDuration.Observe(context.Background(), v, nil)
 		}
 	}()
 	http.HandleFunc(`/hello`, func(rw http.ResponseWriter, r *http.Request) {
