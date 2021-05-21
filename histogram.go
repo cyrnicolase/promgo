@@ -39,7 +39,10 @@ type redisHistogram struct {
 // Observe 观察者
 func (rh redisHistogram) Observe(ctx context.Context, v float64, constLables ConstLabels) {
 	bucket := rh.findBucket(v)
-	constLables[`le`] = strconv.FormatFloat(rh.Buckets[bucket], 'f', -1, 64)
+	constLables[`le`] = `+Inf`
+	if bucket < len(rh.Buckets) {
+		constLables[`le`] = strconv.FormatFloat(rh.Buckets[bucket], 'f', -1, 64)
+	}
 
 	rh.Rdb.HIncrByFloat(ctx, rh.key(), rh.field(constLables), 1)
 }

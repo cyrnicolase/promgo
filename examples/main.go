@@ -45,7 +45,7 @@ func init() {
 		Help:   `接口请求时长`,
 		Labels: []string{`method`, `endpoint`},
 	}, nil)
-	requestDuration.Linear(10, 10, 10)
+	requestDuration.Linear(10, 10, 9)
 
 	promgo.GetDefaultRegistry().MustRegister(RequestTotal)
 	promgo.GetDefaultRegistry().MustRegister(AllRequest)
